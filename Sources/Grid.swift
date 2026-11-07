@@ -72,7 +72,10 @@ final class GridView: NSView {
         let c = grid.contains(convert(e.locationInWindow, from: nil)) ? cell(e) : nil
         if c?.0 != hover?.0 || c?.1 != hover?.1 { hover = c; needsDisplay = true }
     }
-    override func mouseEntered(with e: NSEvent) { mouseMoved(with: e) }
+    override func mouseEntered(with e: NSEvent) {   // the display under the cursor is the target, so its panel takes the keyboard and the others dim
+        if gridActive, !panel.isKeyWindow { panel.makeKey(); panel.makeFirstResponder(self) }
+        mouseMoved(with: e)
+    }
     override func mouseExited(with e: NSEvent) { if hover != nil { hover = nil; needsDisplay = true } }
     func claim() { for g in grids where g !== self { g.clear() } }   // a selection here drops any on another display
 
@@ -134,47 +137,48 @@ final class GridView: NSView {
             name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
         }
         let cw = grid.width / CGFloat(cols), ch = grid.height / CGFloat(rows)
-        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 4pt gap at every cell boundary
+        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 3pt gap at every cell boundary
             let i = c.rounded()
-            return abs(c - i) <= tol ? i * size + sign * 2 : c * size
+            return abs(c - i) <= tol ? i * size + sign * 1.5 : c * size
         }
         func path(_ r: NSRect, tolX: CGFloat = 0, tolY: CGFloat = 0) -> NSBezierPath {
             let x0 = grid.minX + edge(r.minX, cw, tolX, 1), x1 = grid.minX + edge(r.maxX, cw, tolX, -1)
             let y0 = grid.minY + edge(r.minY, ch, tolY, 1), y1 = grid.minY + edge(r.maxY, ch, tolY, -1)
-            return NSBezierPath(roundedRect: NSRect(x: x0, y: y0, width: max(x1 - x0, 0), height: max(y1 - y0, 0)), xRadius: 3, yRadius: 3)
+            return NSBezierPath(roundedRect: NSRect(x: x0, y: y0, width: max(x1 - x0, 0), height: max(y1 - y0, 0)), xRadius: 4, yRadius: 4)
         }
         func rect(_ x: ClosedRange<Int>, _ y: ClosedRange<Int>) -> NSBezierPath {
             path(NSRect(x: x.lowerBound, y: y.lowerBound, width: x.count, height: y.count))
         }
-        func cell(_ p: NSBezierPath, fill: NSColor) {   // Divvy's engraved cell: a light pixel under the right and bottom edges, a dark rim, the fill inside
-            var t = AffineTransform(translationByX: 1, byY: -1); let lit = p.copy() as! NSBezierPath; lit.transform(using: t)
-            NSColor(white: 0.32, alpha: 1).setFill(); lit.fill()
-            NSColor(white: 0.07, alpha: 1).setFill(); p.fill()
-            t = AffineTransform(translationByX: 1, byY: 1)
-            fill.setFill(); NSBezierPath(roundedRect: p.bounds.insetBy(dx: 1, dy: 1), xRadius: 2.5, yRadius: 2.5).fill()
+        func cell(_ p: NSBezierPath, fill: NSColor) {   // Divvy's flat cell: a faint dark fill inside a thin light outline
+            fill.setFill(); p.fill()
+            NSColor(white: 1, alpha: 0.42).setStroke(); p.lineWidth = 1; p.stroke()
         }
-        for x in 0..<cols { for y in 0..<rows { cell(rect(x...x, y...y), fill: NSColor(white: 0.16, alpha: 1)) } }
+        for x in 0..<cols { for y in 0..<rows { cell(rect(x...x, y...y), fill: NSColor(white: 0, alpha: 0.25)) } }
         let v = screen.visibleFrame, c = CGFloat(cols), r = CGFloat(rows)
         for u in ghosts {   // other snapped windows, faint
             let p = path(NSRect(x: u.minX * c, y: u.minY * r, width: u.width * c, height: u.height * r), tolX: 2 * c / v.width, tolY: 2 * r / v.height)
-            NSColor(white: 1, alpha: 0.10).setFill(); p.fill()
+            NSColor(white: 1, alpha: 0.08).setFill(); p.fill()
         }
         if let s = selection {
             let p = rect(s.x, s.y)
             if pending {   // the cells the window covers now: an outline only, the keyboard starts from it
-                NSColor(white: 1, alpha: 0.45).setStroke(); p.lineWidth = 1; p.stroke()
+                NSColor(white: 1, alpha: 0.7).setStroke(); p.lineWidth = 1; p.stroke()
             } else {
-                cell(p, fill: NSColor(white: 0.46, alpha: 1))
+                cell(p, fill: NSColor(white: 1, alpha: 0.27))
             }
         }
         if let h = hover, start == nil || pending {   // under the cursor, until a drag starts
-            cell(rect(h.0...h.0, h.1...h.1), fill: NSColor(white: 0.46, alpha: 1))
+            cell(rect(h.0...h.0, h.1...h.1), fill: NSColor(white: 1, alpha: 0.14))
         }
     }
 }
 
+func dimAlpha(_ g: GridView) -> CGFloat { g.panel.isKeyWindow ? 1 : 0.6 }   // Divvy fades the panels on the other displays
+func refreshDim() { NSAnimationContext.runAnimationGroup { c in c.duration = 0.12; grids.forEach { $0.panel.animator().alphaValue = dimAlpha($0) } } }
+
 final class Panel: NSPanel {
     override var canBecomeKey: Bool { true }
+    override func becomeKey() { super.becomeKey(); if gridActive { refreshDim() } }
     override func resignKey() {   // the keyboard moving to another grid panel (Tab, a click on it) keeps the grid; anywhere else dismisses
         super.resignKey()
         DispatchQueue.main.async { if !(NSApp.keyWindow is Panel) { cancelGrid() } }
@@ -183,12 +187,12 @@ final class Panel: NSPanel {
 
 func makePanel(_ view: GridView) -> Panel {
     let panel = Panel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-    let back = NSView()   // solid dark gray like Divvy; nothing behind the panel shows through
+    let back = NSView()   // Divvy's backdrop: black at 60%, a thin light edge
     back.wantsLayer = true
-    back.layer?.backgroundColor = NSColor(white: 0.22, alpha: 1).cgColor   // two steps darker than Divvy's #5F5F5F
-    back.layer?.borderColor = NSColor(white: 0.42, alpha: 1).cgColor
+    back.layer?.backgroundColor = NSColor(white: 0, alpha: 0.6).cgColor
+    back.layer?.borderColor = NSColor(white: 1, alpha: 0.32).cgColor
     back.layer?.borderWidth = 1
-    back.layer?.cornerRadius = 10; back.layer?.masksToBounds = true
+    back.layer?.cornerRadius = 12; back.layer?.masksToBounds = true
     back.addSubview(view)
     panel.contentView = back
     panel.appearance = NSAppearance(named: .darkAqua)
@@ -233,7 +237,7 @@ func showGrid() {
     gridActive = true
     key.panel.makeKeyAndOrderFront(nil)
     key.panel.makeFirstResponder(key)
-    NSAnimationContext.runAnimationGroup { c in c.duration = 0.12; grids.forEach { $0.panel.animator().alphaValue = 1 } }
+    refreshDim()
 }
 func hideGrid() {
     recordMode = false
