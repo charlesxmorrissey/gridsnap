@@ -19,7 +19,7 @@ func mouse(_ type: CGEventType, _ p: CGPoint) {
 func panels() -> [CGRect] {
     let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
     return info.filter { $0[kCGWindowOwnerPID as String] as? pid_t == gridPid }
-        .compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { abs($0.width - 480) < 2 }
+        .compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { abs($0.width - 320) < 2 }
 }
 func textFrame() -> CGRect {
     var ref: CFTypeRef?; AXUIElementCopyAttributeValue(AXUIElementCreateApplication(textPid), kAXFocusedWindowAttribute as CFString, &ref)
@@ -46,7 +46,7 @@ let before = textFrame()
 AXUIElementPerformAction(plus, kAXPressAction as CFString); usleep(1_000_000)
 let ps = panels(); print("panels in record mode:", ps.count)
 guard let p2 = ps.first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
-let pad: CGFloat = 28   // room around the cells; record mode has no target, so no header
+let pad: CGFloat = 20   // room around the cells; record mode has no target, so no header
 func cell(_ p: CGRect, _ c: CGFloat, _ r: CGFloat) -> CGPoint { CGPoint(x: p.minX + pad + (p.width - 2 * pad) / 10 * c, y: p.minY + pad + (p.height - 2 * pad) / 10 * r) }
 let s = cell(p2, 0.5, 0.5), e = cell(p2, 4.5, 4.5)
 CGWarpMouseCursorPosition(s); usleep(200_000); mouse(.leftMouseDown, s)

@@ -30,7 +30,7 @@ func panels() -> [CGRect] {
     return info.filter { $0[kCGWindowOwnerPID as String] as? pid_t == gridPid }
         .compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { $0.width > 100 }
 }
-let pad: CGFloat = 28, header: CGFloat = 96   // room around the cells, app icon and name above them
+let pad: CGFloat = 20, header: CGFloat = 64   // room around the cells, app icon and name above them
 func cellPoint(_ p: CGRect, _ col: CGFloat, _ row: CGFloat) -> CGPoint {   // 10x10 grid, padded, below the header, row 0 at the top
     CGPoint(x: p.minX + pad + (p.width - 2 * pad) / 10 * col, y: p.minY + pad + header + (p.height - 2 * pad - header) / 10 * row)
 }

@@ -8,7 +8,7 @@ func hotkey() { key(CGKeyCode(kVK_Shift), down: true, .maskShift); key(CGKeyCode
 func mouse(_ type: CGEventType, _ p: CGPoint) { let e = CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: p, mouseButton: .left)!; e.flags = []; e.post(tap: .cghidEventTap) }
 func panels() -> [CGRect] {
     let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
-    return info.filter { $0[kCGWindowOwnerPID as String] as? pid_t == gridPid }.compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { abs($0.width - 480) < 2 }
+    return info.filter { $0[kCGWindowOwnerPID as String] as? pid_t == gridPid }.compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { abs($0.width - 320) < 2 }
 }
 func textFrame() -> CGRect {
     var ref: CFTypeRef?; AXUIElementCopyAttributeValue(AXUIElementCreateApplication(textPid), kAXFocusedWindowAttribute as CFString, &ref)
@@ -21,7 +21,7 @@ print("before", textFrame())
 CGWarpMouseCursorPosition(CGPoint(x: 960, y: 700)); usleep(200_000)
 hotkey(); usleep(900_000)
 guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
-let pad: CGFloat = 28, header: CGFloat = 96   // room around the cells, app icon and name above them
+let pad: CGFloat = 20, header: CGFloat = 64   // room around the cells, app icon and name above them
 let cw = (p2.width - 2 * pad) / 10, ch = (p2.height - 2 * pad - header) / 10
 let s = CGPoint(x: p2.minX + pad + cw * 1.5, y: p2.minY + pad + header + ch * 1.5), e = CGPoint(x: p2.minX - 400, y: p2.maxY + 300)
 CGWarpMouseCursorPosition(s); usleep(200_000); mouse(.leftMouseDown, s)

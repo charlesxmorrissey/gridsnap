@@ -42,7 +42,7 @@ final class GridView: NSView {
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for e: NSEvent?) -> Bool { true }
 
-    static let pad: CGFloat = 28, headerHeight: CGFloat = 96   // Divvy's proportions: room around the cells, a tall header
+    static let pad: CGFloat = 20, headerHeight: CGFloat = 64   // Divvy's proportions, measured from its panel
     var header: CGFloat { targetApp == nil ? 0 : GridView.headerHeight }   // icon and name of the target app; 0 when there is no target
     var grid: NSRect { NSRect(x: GridView.pad, y: GridView.pad, width: bounds.width - 2 * GridView.pad, height: bounds.height - 2 * GridView.pad - header) }
     func cell(_ e: NSEvent) -> (Int, Int) {
@@ -126,22 +126,22 @@ final class GridView: NSView {
     override func draw(_ dirty: NSRect) {
         guard !grid.isEmpty else { return }   // layer-backed views get drawn at zero size before the panel is shown
         if let app = targetApp {   // header: the app the window belongs to, same on every display
-            let icon = NSRect(x: grid.minX, y: grid.maxY + (header - 48) / 2, width: 48, height: 48)
+            let icon = NSRect(x: grid.minX, y: grid.maxY + (header - 30) / 2, width: 30, height: 30)
             app.icon?.draw(in: icon, from: .zero, operation: .sourceOver, fraction: 1)
             let name = NSAttributedString(string: app.localizedName ?? "", attributes: [
-                .font: NSFont.systemFont(ofSize: 26, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.92)])
+                .font: NSFont.systemFont(ofSize: 18, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.92)])
             let s = name.size()
-            name.draw(in: NSRect(x: icon.maxX + 16, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 16, height: s.height))
+            name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
         }
         let cw = grid.width / CGFloat(cols), ch = grid.height / CGFloat(rows)
-        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 5pt gap at every cell boundary
+        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 4pt gap at every cell boundary
             let i = c.rounded()
-            return abs(c - i) <= tol ? i * size + sign * 2.5 : c * size
+            return abs(c - i) <= tol ? i * size + sign * 2 : c * size
         }
         func path(_ r: NSRect, tolX: CGFloat = 0, tolY: CGFloat = 0) -> NSBezierPath {
             let x0 = grid.minX + edge(r.minX, cw, tolX, 1), x1 = grid.minX + edge(r.maxX, cw, tolX, -1)
             let y0 = grid.minY + edge(r.minY, ch, tolY, 1), y1 = grid.minY + edge(r.maxY, ch, tolY, -1)
-            return NSBezierPath(roundedRect: NSRect(x: x0, y: y0, width: max(x1 - x0, 0), height: max(y1 - y0, 0)), xRadius: 4, yRadius: 4)
+            return NSBezierPath(roundedRect: NSRect(x: x0, y: y0, width: max(x1 - x0, 0), height: max(y1 - y0, 0)), xRadius: 3, yRadius: 3)
         }
         func rect(_ x: ClosedRange<Int>, _ y: ClosedRange<Int>) -> NSBezierPath {
             path(NSRect(x: x.lowerBound, y: y.lowerBound, width: x.count, height: y.count))
@@ -187,7 +187,7 @@ func makePanel(_ view: GridView) -> Panel {
     back.layer?.backgroundColor = NSColor(white: 0.40, alpha: 1).cgColor
     back.layer?.borderColor = NSColor(white: 1, alpha: 0.7).cgColor
     back.layer?.borderWidth = 1
-    back.layer?.cornerRadius = 18; back.layer?.masksToBounds = true
+    back.layer?.cornerRadius = 10; back.layer?.masksToBounds = true
     back.addSubview(view)
     panel.contentView = back
     panel.appearance = NSAppearance(named: .darkAqua)
@@ -223,7 +223,7 @@ func showGrid() {
                 g.start = (x.lowerBound, y.lowerBound); g.end = (x.upperBound, y.upperBound); g.pending = true
             }
         }
-        let f = s.visibleFrame, w: CGFloat = 480, p = GridView.pad, h = (w - 2 * p) * f.height / f.width + 2 * p + g.header   // the cells keep the display's aspect; padding and header add to it
+        let f = s.visibleFrame, w: CGFloat = 320, p = GridView.pad, h = (w - 2 * p) * f.height / f.width + 2 * p + g.header   // the cells keep the display's aspect; padding and header add to it
         g.panel.setFrame(NSRect(x: f.midX - w / 2, y: f.midY - h / 2, width: w, height: h), display: true)
         g.frame = g.panel.contentView!.bounds
         g.panel.alphaValue = 0
