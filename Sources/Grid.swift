@@ -146,11 +146,14 @@ final class GridView: NSView {
         func rect(_ x: ClosedRange<Int>, _ y: ClosedRange<Int>) -> NSBezierPath {
             path(NSRect(x: x.lowerBound, y: y.lowerBound, width: x.count, height: y.count))
         }
-        for x in 0..<cols { for y in 0..<rows {
-            let p = rect(x...x, y...y)
-            NSColor(white: 0.24, alpha: 1).setFill(); p.fill()
-            NSColor(white: 1, alpha: 0.16).setStroke(); p.stroke()
-        }}
+        func cell(_ p: NSBezierPath, fill: NSColor) {   // Divvy's engraved cell: a light pixel under the right and bottom edges, a dark rim, the fill inside
+            var t = AffineTransform(translationByX: 1, byY: -1); let lit = p.copy() as! NSBezierPath; lit.transform(using: t)
+            NSColor(white: 0.44, alpha: 1).setFill(); lit.fill()
+            NSColor(white: 0.17, alpha: 1).setFill(); p.fill()
+            t = AffineTransform(translationByX: 1, byY: 1)
+            fill.setFill(); NSBezierPath(roundedRect: p.bounds.insetBy(dx: 1, dy: 1), xRadius: 2.5, yRadius: 2.5).fill()
+        }
+        for x in 0..<cols { for y in 0..<rows { cell(rect(x...x, y...y), fill: NSColor(white: 0.26, alpha: 1)) } }
         let v = screen.visibleFrame, c = CGFloat(cols), r = CGFloat(rows)
         for u in ghosts {   // other snapped windows, faint
             let p = path(NSRect(x: u.minX * c, y: u.minY * r, width: u.width * c, height: u.height * r), tolX: 2 * c / v.width, tolY: 2 * r / v.height)
@@ -161,13 +164,11 @@ final class GridView: NSView {
             if pending {   // the cells the window covers now: an outline only, the keyboard starts from it
                 NSColor(white: 1, alpha: 0.45).setStroke(); p.lineWidth = 1; p.stroke()
             } else {
-                NSColor(white: 0.62, alpha: 1).setFill(); p.fill()
-                NSColor(white: 1, alpha: 0.5).setStroke(); p.lineWidth = 1; p.stroke()
+                cell(p, fill: NSColor(white: 0.53, alpha: 1))
             }
         }
         if let h = hover, start == nil || pending {   // under the cursor, until a drag starts
-            let p = rect(h.0...h.0, h.1...h.1)
-            NSColor(white: 0.62, alpha: 1).setFill(); p.fill()
+            cell(rect(h.0...h.0, h.1...h.1), fill: NSColor(white: 0.53, alpha: 1))
         }
     }
 }
@@ -184,8 +185,8 @@ func makePanel(_ view: GridView) -> Panel {
     let panel = Panel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     let back = NSView()   // solid dark gray like Divvy; nothing behind the panel shows through
     back.wantsLayer = true
-    back.layer?.backgroundColor = NSColor(white: 0.40, alpha: 1).cgColor
-    back.layer?.borderColor = NSColor(white: 1, alpha: 0.7).cgColor
+    back.layer?.backgroundColor = NSColor(white: 0.37, alpha: 1).cgColor   // Divvy's gray, sampled
+    back.layer?.borderColor = NSColor(white: 0.55, alpha: 1).cgColor
     back.layer?.borderWidth = 1
     back.layer?.cornerRadius = 10; back.layer?.masksToBounds = true
     back.addSubview(view)
