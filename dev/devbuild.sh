@@ -4,4 +4,8 @@ cd "$(dirname "$0")/.." && ./build.sh >/dev/null
 plutil -replace CFBundleIdentifier -string com.zerodivisionerror.gridsnap.dev build/GridSnap.app/Contents/Info.plist
 plutil -replace CFBundleName -string "GridSnap Dev" build/GridSnap.app/Contents/Info.plist
 codesign --force --sign "GridSnap Dev" build/GridSnap.app 2>&1 | tail -1
-echo "dev build ready"
+# install as the daily copy: quit the running one, copy over, relaunch
+pkill -x GridSnap || true; sleep 1
+rm -rf "/Applications/GridSnap Dev.app" && ditto build/GridSnap.app "/Applications/GridSnap Dev.app"
+open "/Applications/GridSnap Dev.app"
+echo "dev build installed and running from /Applications/GridSnap Dev.app"
