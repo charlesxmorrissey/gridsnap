@@ -44,8 +44,8 @@ case "drag":   // open, then drag the left half of the second display's grid (di
     post(hot.0, hot.1); usleep(600_000)
     guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
     print("panel on display 2:", p2)
-    let cw = (p2.width - 20) / 12, ch = (p2.height - 20) / 8
-    click(CGPoint(x: p2.minX + 10 + cw * 0.5, y: p2.minY + 10 + ch * 0.5), drag: CGPoint(x: p2.minX + 10 + cw * 5.5, y: p2.minY + 10 + ch * 7.5))
+    let header: CGFloat = 52, cw = (p2.width - 20) / 12, ch = (p2.height - 20 - header) / 8   // app icon and name above the grid
+    click(CGPoint(x: p2.minX + 10 + cw * 0.5, y: p2.minY + 10 + header + ch * 0.5), drag: CGPoint(x: p2.minX + 10 + cw * 5.5, y: p2.minY + 10 + header + ch * 7.5))
     usleep(600_000)
     print("after drag, panels:", panels().count)
     print("TextEdit after:", textFrame())

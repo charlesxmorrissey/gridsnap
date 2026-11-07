@@ -21,8 +21,9 @@ print("before", textFrame())
 CGWarpMouseCursorPosition(CGPoint(x: 960, y: 700)); usleep(200_000)
 hotkey(); usleep(900_000)
 guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
-let cw = (p2.width - 20) / 10, ch = (p2.height - 20) / 10
-let s = CGPoint(x: p2.minX + 10 + cw * 1.5, y: p2.minY + 10 + ch * 1.5), e = CGPoint(x: p2.minX - 400, y: p2.maxY + 300)
+let header: CGFloat = 52   // app icon and name above the grid
+let cw = (p2.width - 20) / 10, ch = (p2.height - 20 - header) / 10
+let s = CGPoint(x: p2.minX + 10 + cw * 1.5, y: p2.minY + 10 + header + ch * 1.5), e = CGPoint(x: p2.minX - 400, y: p2.maxY + 300)
 CGWarpMouseCursorPosition(s); usleep(200_000); mouse(.leftMouseDown, s)
 for i in 1...20 { usleep(30_000); mouse(.leftMouseDragged, CGPoint(x: s.x + (e.x - s.x) * CGFloat(i) / 20, y: s.y + (e.y - s.y) * CGFloat(i) / 20)) }
 usleep(300_000); let mid = textFrame(); mouse(.leftMouseUp, e); usleep(900_000)

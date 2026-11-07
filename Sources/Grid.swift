@@ -41,7 +41,9 @@ final class GridView: NSView {
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for e: NSEvent?) -> Bool { true }
 
-    var grid: NSRect { bounds.insetBy(dx: 10, dy: 10) }
+    static let headerHeight: CGFloat = 52   // icon and name of the target app above the grid; 0 when there is no target
+    var header: CGFloat { targetApp == nil ? 0 : GridView.headerHeight }
+    var grid: NSRect { NSRect(x: 10, y: 10, width: bounds.width - 20, height: bounds.height - 20 - header) }
     func cell(_ e: NSEvent) -> (Int, Int) {
         let p = convert(e.locationInWindow, from: nil)
         return (min(max(Int((p.x - grid.minX) / grid.width * CGFloat(cols)), 0), cols - 1),
@@ -111,6 +113,14 @@ final class GridView: NSView {
 
     override func draw(_ dirty: NSRect) {
         guard !grid.isEmpty else { return }   // layer-backed views get drawn at zero size before the panel is shown
+        if let app = targetApp {   // header: the app the window belongs to, same on every display
+            let icon = NSRect(x: grid.minX + 2, y: grid.maxY + 8, width: 36, height: 36)
+            app.icon?.draw(in: icon, from: .zero, operation: .sourceOver, fraction: 1)
+            let name = NSAttributedString(string: app.localizedName ?? "", attributes: [
+                .font: NSFont.systemFont(ofSize: 20, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.9)])
+            let s = name.size()
+            name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
+        }
         let cw = grid.width / CGFloat(cols), ch = grid.height / CGFloat(rows)
         // extra gap at boundary i of n: halves widest, thirds/quarters narrower, everything else uniform
         func gap(_ i: Int, _ n: Int) -> CGFloat {
@@ -180,6 +190,7 @@ func showGrid() {
     targetWindow = recordMode ? nil : pickTarget()   // before the panels appear; record mode moves nothing
     original = targetWindow.flatMap(axFrame)
     if original == nil { targetWindow = nil }
+    targetApp = targetWindow.flatMap(appOf)
     moved = false
     let screens = NSScreen.screens, ghosts = ghostFrames()
     while grids.count < screens.count { grids.append(GridView()) }
@@ -198,7 +209,7 @@ func showGrid() {
                 g.start = (x.lowerBound, y.lowerBound); g.end = (x.upperBound, y.upperBound); g.pending = true
             }
         }
-        let f = s.visibleFrame, w: CGFloat = 480, h = w * f.height / f.width
+        let f = s.visibleFrame, w: CGFloat = 480, h = w * f.height / f.width + g.header   // the grid keeps the display's aspect; the header adds to it
         g.panel.setFrame(NSRect(x: f.midX - w / 2, y: f.midY - h / 2, width: w, height: h), display: true)
         g.frame = g.panel.contentView!.bounds
         g.panel.alphaValue = 0
