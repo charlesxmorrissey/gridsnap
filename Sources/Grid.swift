@@ -38,6 +38,7 @@ final class GridView: NSView {
     var screen: NSScreen = .main!
     lazy var panel = makePanel(self)
     var start: (Int, Int)?, end: (Int, Int)?, pending = false
+    var hover: (Int, Int)?   // the cell under the cursor lights up, like Divvy
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for e: NSEvent?) -> Bool { true }
 
@@ -61,7 +62,18 @@ final class GridView: NSView {
     var selectionFrame: NSRect? { selectionFraction.map { screenFrame(fraction: $0, on: screen) } }
 
     var ghosts: [NSRect] = []
-    func clear() { start = nil; end = nil; pending = false; needsDisplay = true }
+    func clear() { start = nil; end = nil; pending = false; hover = nil; needsDisplay = true }
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        trackingAreas.forEach(removeTrackingArea)
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseMoved, .mouseEnteredAndExited, .activeAlways, .inVisibleRect], owner: self))
+    }
+    override func mouseMoved(with e: NSEvent) {
+        let c = grid.contains(convert(e.locationInWindow, from: nil)) ? cell(e) : nil
+        if c?.0 != hover?.0 || c?.1 != hover?.1 { hover = c; needsDisplay = true }
+    }
+    override func mouseEntered(with e: NSEvent) { mouseMoved(with: e) }
+    override func mouseExited(with e: NSEvent) { if hover != nil { hover = nil; needsDisplay = true } }
     func claim() { for g in grids where g !== self { g.clear() } }   // a selection here drops any on another display
 
     override func mouseDown(with e: NSEvent) {
@@ -122,17 +134,13 @@ final class GridView: NSView {
             name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
         }
         let cw = grid.width / CGFloat(cols), ch = grid.height / CGFloat(rows)
-        // extra gap at boundary i of n: halves widest, thirds/quarters narrower, everything else uniform
-        func gap(_ i: Int, _ n: Int) -> CGFloat {
-            i == 0 || i == n ? 0 : (i * 2) % n == 0 ? 3 : (i * 3) % n == 0 || (i * 4) % n == 0 ? 1.5 : 0
-        }
-        func edge(_ c: CGFloat, _ n: Int, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {
+        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 2pt gap at every cell boundary
             let i = c.rounded()
-            return abs(c - i) <= tol ? i * size + sign * (2 + gap(Int(i), n)) : c * size
+            return abs(c - i) <= tol ? i * size + sign * 2 : c * size
         }
         func path(_ r: NSRect, tolX: CGFloat = 0, tolY: CGFloat = 0) -> NSBezierPath {
-            let x0 = grid.minX + edge(r.minX, cols, cw, tolX, 1), x1 = grid.minX + edge(r.maxX, cols, cw, tolX, -1)
-            let y0 = grid.minY + edge(r.minY, rows, ch, tolY, 1), y1 = grid.minY + edge(r.maxY, rows, ch, tolY, -1)
+            let x0 = grid.minX + edge(r.minX, cw, tolX, 1), x1 = grid.minX + edge(r.maxX, cw, tolX, -1)
+            let y0 = grid.minY + edge(r.minY, ch, tolY, 1), y1 = grid.minY + edge(r.maxY, ch, tolY, -1)
             return NSBezierPath(roundedRect: NSRect(x: x0, y: y0, width: max(x1 - x0, 0), height: max(y1 - y0, 0)), xRadius: 4, yRadius: 4)
         }
         func rect(_ x: ClosedRange<Int>, _ y: ClosedRange<Int>) -> NSBezierPath {
@@ -140,19 +148,26 @@ final class GridView: NSView {
         }
         for x in 0..<cols { for y in 0..<rows {
             let p = rect(x...x, y...y)
-            NSColor.white.withAlphaComponent(0.10).setFill(); p.fill()
-            NSColor.white.withAlphaComponent(0.20).setStroke(); p.stroke()
+            NSColor(white: 0.25, alpha: 1).setFill(); p.fill()
+            NSColor(white: 1, alpha: 0.18).setStroke(); p.stroke()
         }}
         let v = screen.visibleFrame, c = CGFloat(cols), r = CGFloat(rows)
-        for u in ghosts {
+        for u in ghosts {   // other snapped windows, faint
             let p = path(NSRect(x: u.minX * c, y: u.minY * r, width: u.width * c, height: u.height * r), tolX: 2 * c / v.width, tolY: 2 * r / v.height)
-            NSColor.white.withAlphaComponent(0.25).setFill(); p.fill()
-            NSColor.white.withAlphaComponent(0.45).setStroke(); p.stroke()
+            NSColor(white: 1, alpha: 0.10).setFill(); p.fill()
         }
         if let s = selection {
             let p = rect(s.x, s.y)
-            NSColor.controlAccentColor.withAlphaComponent(pending ? 0.3 : 0.85).setFill(); p.fill()
-            (pending ? NSColor.controlAccentColor : NSColor.white.withAlphaComponent(0.7)).setStroke(); p.lineWidth = pending ? 2 : 1.5; p.stroke()
+            if pending {   // the cells the window covers now: an outline only, the keyboard starts from it
+                NSColor(white: 1, alpha: 0.75).setStroke(); p.lineWidth = 1.5; p.stroke()
+            } else {
+                NSColor(white: 0.62, alpha: 1).setFill(); p.fill()
+                NSColor(white: 1, alpha: 0.5).setStroke(); p.lineWidth = 1; p.stroke()
+            }
+        }
+        if let h = hover, start == nil || pending {   // under the cursor, until a drag starts
+            let p = rect(h.0...h.0, h.1...h.1)
+            NSColor(white: 0.62, alpha: 1).setFill(); p.fill()
         }
     }
 }
@@ -167,15 +182,14 @@ final class Panel: NSPanel {
 
 func makePanel(_ view: GridView) -> Panel {
     let panel = Panel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-    let glass: NSView
-    if #available(macOS 26, *) {
-        let g = NSGlassEffectView(); g.cornerRadius = 18; g.contentView = view; glass = g
-        g.wantsLayer = true; g.layer?.cornerRadius = 18; g.layer?.masksToBounds = true  // clip the backdrop too
-    } else {
-        let v = NSVisualEffectView(); v.material = .hudWindow; v.state = .active
-        v.wantsLayer = true; v.layer?.cornerRadius = 18; v.addSubview(view); glass = v
-    }
-    panel.contentView = glass
+    let back = NSView()   // solid dark gray like Divvy; nothing behind the panel shows through
+    back.wantsLayer = true
+    back.layer?.backgroundColor = NSColor(white: 0.36, alpha: 1).cgColor
+    back.layer?.borderColor = NSColor(white: 1, alpha: 0.25).cgColor
+    back.layer?.borderWidth = 1
+    back.layer?.cornerRadius = 18; back.layer?.masksToBounds = true
+    back.addSubview(view)
+    panel.contentView = back
     panel.appearance = NSAppearance(named: .darkAqua)
     panel.hasShadow = false  // a shadow is computed on the square bounds and leaks through the corners
     panel.level = .floating
