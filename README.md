@@ -11,7 +11,7 @@ An open source alternative to [Divvy](https://mizage.com/divvy/) for macOS. Pres
 - Snap the focused window or the one under the cursor
 - A grid on every display: snap to any display's grid to move the window there
 - The app the window belongs to, icon and name, above every grid
-- A solid panel with even dark cells and room around them, Divvy style; the cell under the cursor lights up
+- Divvy's look: a translucent dark panel with flat outlined cells; the display under the cursor is bright and the others dim
 - Menu bar app, launch at login, no Dock icon
 - No network access, no analytics, no accounts
 
