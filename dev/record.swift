@@ -46,7 +46,8 @@ let before = textFrame()
 AXUIElementPerformAction(plus, kAXPressAction as CFString); usleep(1_000_000)
 let ps = panels(); print("panels in record mode:", ps.count)
 guard let p2 = ps.first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
-func cell(_ p: CGRect, _ c: CGFloat, _ r: CGFloat) -> CGPoint { CGPoint(x: p.minX + 10 + (p.width - 20) / 10 * c, y: p.minY + 10 + (p.height - 20) / 10 * r) }
+let pad: CGFloat = 28   // room around the cells; record mode has no target, so no header
+func cell(_ p: CGRect, _ c: CGFloat, _ r: CGFloat) -> CGPoint { CGPoint(x: p.minX + pad + (p.width - 2 * pad) / 10 * c, y: p.minY + pad + (p.height - 2 * pad) / 10 * r) }
 let s = cell(p2, 0.5, 0.5), e = cell(p2, 4.5, 4.5)
 CGWarpMouseCursorPosition(s); usleep(200_000); mouse(.leftMouseDown, s)
 for i in 1...10 { usleep(30_000); mouse(.leftMouseDragged, CGPoint(x: s.x + (e.x - s.x) * CGFloat(i) / 10, y: s.y + (e.y - s.y) * CGFloat(i) / 10)) }

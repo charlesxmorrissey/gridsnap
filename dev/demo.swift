@@ -30,9 +30,9 @@ func panels() -> [CGRect] {
     return info.filter { $0[kCGWindowOwnerPID as String] as? pid_t == gridPid }
         .compactMap { CGRect(dictionaryRepresentation: $0[kCGWindowBounds as String] as! CFDictionary) }.filter { $0.width > 100 }
 }
-let header: CGFloat = 52   // app icon and name above the grid
-func cellPoint(_ p: CGRect, _ col: CGFloat, _ row: CGFloat) -> CGPoint {   // 10x10 grid, 10pt inset below the header, row 0 at the top
-    CGPoint(x: p.minX + 10 + (p.width - 20) / 10 * col, y: p.minY + 10 + header + (p.height - 20 - header) / 10 * row)
+let pad: CGFloat = 28, header: CGFloat = 96   // room around the cells, app icon and name above them
+func cellPoint(_ p: CGRect, _ col: CGFloat, _ row: CGFloat) -> CGPoint {   // 10x10 grid, padded, below the header, row 0 at the top
+    CGPoint(x: p.minX + pad + (p.width - 2 * pad) / 10 * col, y: p.minY + pad + header + (p.height - 2 * pad - header) / 10 * row)
 }
 NSRunningApplication(processIdentifier: textPid)!.activate(); usleep(300_000)
 glide(to: CGPoint(x: 960, y: 700)); usleep(1_200_000)

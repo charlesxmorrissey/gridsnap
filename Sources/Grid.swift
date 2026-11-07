@@ -42,9 +42,9 @@ final class GridView: NSView {
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for e: NSEvent?) -> Bool { true }
 
-    static let headerHeight: CGFloat = 52   // icon and name of the target app above the grid; 0 when there is no target
-    var header: CGFloat { targetApp == nil ? 0 : GridView.headerHeight }
-    var grid: NSRect { NSRect(x: 10, y: 10, width: bounds.width - 20, height: bounds.height - 20 - header) }
+    static let pad: CGFloat = 28, headerHeight: CGFloat = 96   // Divvy's proportions: room around the cells, a tall header
+    var header: CGFloat { targetApp == nil ? 0 : GridView.headerHeight }   // icon and name of the target app; 0 when there is no target
+    var grid: NSRect { NSRect(x: GridView.pad, y: GridView.pad, width: bounds.width - 2 * GridView.pad, height: bounds.height - 2 * GridView.pad - header) }
     func cell(_ e: NSEvent) -> (Int, Int) {
         let p = convert(e.locationInWindow, from: nil)
         return (min(max(Int((p.x - grid.minX) / grid.width * CGFloat(cols)), 0), cols - 1),
@@ -126,17 +126,17 @@ final class GridView: NSView {
     override func draw(_ dirty: NSRect) {
         guard !grid.isEmpty else { return }   // layer-backed views get drawn at zero size before the panel is shown
         if let app = targetApp {   // header: the app the window belongs to, same on every display
-            let icon = NSRect(x: grid.minX + 2, y: grid.maxY + 8, width: 36, height: 36)
+            let icon = NSRect(x: grid.minX, y: grid.maxY + (header - 48) / 2, width: 48, height: 48)
             app.icon?.draw(in: icon, from: .zero, operation: .sourceOver, fraction: 1)
             let name = NSAttributedString(string: app.localizedName ?? "", attributes: [
-                .font: NSFont.systemFont(ofSize: 20, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.9)])
+                .font: NSFont.systemFont(ofSize: 26, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.92)])
             let s = name.size()
-            name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
+            name.draw(in: NSRect(x: icon.maxX + 16, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 16, height: s.height))
         }
         let cw = grid.width / CGFloat(cols), ch = grid.height / CGFloat(rows)
-        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 2pt gap at every cell boundary
+        func edge(_ c: CGFloat, _ size: CGFloat, _ tol: CGFloat, _ sign: CGFloat) -> CGFloat {   // 5pt gap at every cell boundary
             let i = c.rounded()
-            return abs(c - i) <= tol ? i * size + sign * 2 : c * size
+            return abs(c - i) <= tol ? i * size + sign * 2.5 : c * size
         }
         func path(_ r: NSRect, tolX: CGFloat = 0, tolY: CGFloat = 0) -> NSBezierPath {
             let x0 = grid.minX + edge(r.minX, cw, tolX, 1), x1 = grid.minX + edge(r.maxX, cw, tolX, -1)
@@ -148,8 +148,8 @@ final class GridView: NSView {
         }
         for x in 0..<cols { for y in 0..<rows {
             let p = rect(x...x, y...y)
-            NSColor(white: 0.25, alpha: 1).setFill(); p.fill()
-            NSColor(white: 1, alpha: 0.18).setStroke(); p.stroke()
+            NSColor(white: 0.24, alpha: 1).setFill(); p.fill()
+            NSColor(white: 1, alpha: 0.16).setStroke(); p.stroke()
         }}
         let v = screen.visibleFrame, c = CGFloat(cols), r = CGFloat(rows)
         for u in ghosts {   // other snapped windows, faint
@@ -159,7 +159,7 @@ final class GridView: NSView {
         if let s = selection {
             let p = rect(s.x, s.y)
             if pending {   // the cells the window covers now: an outline only, the keyboard starts from it
-                NSColor(white: 1, alpha: 0.75).setStroke(); p.lineWidth = 1.5; p.stroke()
+                NSColor(white: 1, alpha: 0.45).setStroke(); p.lineWidth = 1; p.stroke()
             } else {
                 NSColor(white: 0.62, alpha: 1).setFill(); p.fill()
                 NSColor(white: 1, alpha: 0.5).setStroke(); p.lineWidth = 1; p.stroke()
@@ -184,14 +184,14 @@ func makePanel(_ view: GridView) -> Panel {
     let panel = Panel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     let back = NSView()   // solid dark gray like Divvy; nothing behind the panel shows through
     back.wantsLayer = true
-    back.layer?.backgroundColor = NSColor(white: 0.36, alpha: 1).cgColor
-    back.layer?.borderColor = NSColor(white: 1, alpha: 0.25).cgColor
+    back.layer?.backgroundColor = NSColor(white: 0.40, alpha: 1).cgColor
+    back.layer?.borderColor = NSColor(white: 1, alpha: 0.7).cgColor
     back.layer?.borderWidth = 1
     back.layer?.cornerRadius = 18; back.layer?.masksToBounds = true
     back.addSubview(view)
     panel.contentView = back
     panel.appearance = NSAppearance(named: .darkAqua)
-    panel.hasShadow = false  // a shadow is computed on the square bounds and leaks through the corners
+    panel.hasShadow = true   // the opaque rounded backdrop gives the shadow its shape
     panel.level = .floating
     panel.isOpaque = false
     panel.backgroundColor = .clear
@@ -223,7 +223,7 @@ func showGrid() {
                 g.start = (x.lowerBound, y.lowerBound); g.end = (x.upperBound, y.upperBound); g.pending = true
             }
         }
-        let f = s.visibleFrame, w: CGFloat = 480, h = w * f.height / f.width + g.header   // the grid keeps the display's aspect; the header adds to it
+        let f = s.visibleFrame, w: CGFloat = 480, p = GridView.pad, h = (w - 2 * p) * f.height / f.width + 2 * p + g.header   // the cells keep the display's aspect; padding and header add to it
         g.panel.setFrame(NSRect(x: f.midX - w / 2, y: f.midY - h / 2, width: w, height: h), display: true)
         g.frame = g.panel.contentView!.bounds
         g.panel.alphaValue = 0
