@@ -42,7 +42,7 @@ final class GridView: NSView {
     override var acceptsFirstResponder: Bool { true }
     override func acceptsFirstMouse(for e: NSEvent?) -> Bool { true }
 
-    static let pad: CGFloat = 20, headerHeight: CGFloat = 64   // Divvy's proportions, measured from its panel
+    static let pad: CGFloat = 20, headerHeight: CGFloat = 62, cells = NSSize(width: 280, height: 195)   // Divvy's panel, measured: a fixed grid, not the display's aspect
     var header: CGFloat { targetApp == nil ? GridView.pad : GridView.headerHeight }   // from the top edge to the grid: icon and name of the target app, or just the margin
     var grid: NSRect { NSRect(x: GridView.pad, y: GridView.pad, width: bounds.width - 2 * GridView.pad, height: bounds.height - GridView.pad - header) }
     func cell(_ e: NSEvent) -> (Int, Int) {
@@ -223,7 +223,7 @@ func showGrid() {
                 g.start = (x.lowerBound, y.lowerBound); g.end = (x.upperBound, y.upperBound); g.pending = true
             }
         }
-        let f = s.visibleFrame, w: CGFloat = 320, p = GridView.pad, h = (w - 2 * p) * f.height / f.width + p + g.header   // the cells keep the display's aspect; the margin and header add to it
+        let f = s.visibleFrame, p = GridView.pad, w = GridView.cells.width + 2 * p, h = GridView.cells.height + p + g.header
         g.panel.setFrame(NSRect(x: f.midX - w / 2, y: f.midY - h / 2, width: w, height: h), display: true)
         g.frame = g.panel.contentView!.bounds
         g.panel.alphaValue = 0

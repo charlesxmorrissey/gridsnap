@@ -22,7 +22,7 @@ print("before", textFrame())
 CGWarpMouseCursorPosition(CGPoint(x: 960, y: 700)); usleep(200_000)
 hotkey(); usleep(900_000)
 guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
-let pad: CGFloat = 20, header: CGFloat = 64   // room around the cells, app icon and name above them
+let pad: CGFloat = 20, header: CGFloat = 62   // room around the cells, app icon and name above them
 let d = UserDefaults(suiteName: "com.zerodivisionerror.gridsnap.dev")
 let nc = CGFloat(d?.object(forKey: "cols") == nil ? 10 : d!.integer(forKey: "cols")), nr = CGFloat(d?.object(forKey: "rows") == nil ? 10 : d!.integer(forKey: "rows"))
 let cw = (p2.width - 2 * pad) / nc, ch = (p2.height - pad - header) / nr
