@@ -44,22 +44,22 @@ open /Applications/GridSnap.app
 
 ## Use
 
-| Action | How |
-|---|---|
-| Show the grid | ⌃⌥D (change it in Settings) |
-| Snap | Click or drag cells and release, or press Return |
-| Move the selection | Arrow keys |
-| Grow or shrink it | Shift+→ / Shift+↑ grow, Shift+← / Shift+↓ shrink |
-| Use another display's grid | Click it, or press Tab |
-| Cancel | Esc |
-| Dismiss | Click anywhere outside the grid |
-| Save a preset | Hold Shift when releasing or pressing Return, or use **+** in Settings |
-| Apply a preset | Its shortcut, or the Presets menu |
-| Undo last snap | ⌃⌥Z by default, press again to redo |
+| Action                     | How                                                                    |
+| -------------------------- | ---------------------------------------------------------------------- |
+| Show the grid              | ⌃⌥D (change it in Settings)                                            |
+| Snap                       | Click or drag cells and release, or press Return                       |
+| Move the selection         | Arrow keys                                                             |
+| Grow or shrink it          | Shift+→ / Shift+↑ grow, Shift+← / Shift+↓ shrink                       |
+| Use another display's grid | Click it, or press Tab                                                 |
+| Cancel                     | Esc                                                                    |
+| Dismiss                    | Click anywhere outside the grid                                        |
+| Save a preset              | Hold Shift when releasing or pressing Return, or use **+** in Settings |
+| Apply a preset             | Its shortcut, or the Presets menu                                      |
+| Undo last snap             | ⌃⌥Z by default, press again to redo                                    |
 
 The grid opens with the window's current cells outlined, so Return alone aligns it to the grid.
 
-With more than one display, a grid appears on each of them. Select cells on any display's grid and the window snaps to that display, so a drag on the other monitor's grid moves the window there. The keyboard starts on the grid for the display the window is on; Tab moves the selection, and the window with it, to the next display. Presets snap to the display the window is already on.
+With more than one display, a grid appears on each of them. Select cells on any display's grid and the window snaps to that display, so a drag on the other monitor's grid moves the window there. The keyboard starts on the grid for the display the window is on; Tab moves the selection, and the window with it, to the next display. A preset's shortcut snaps to the display the window is already on.
 
 Wider gutters in the grid mark halves, thirds and quarters.
 
