@@ -25,7 +25,7 @@ guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on 
 let pad: CGFloat = 20, header: CGFloat = 62   // room around the cells, app icon and name above them
 let d = UserDefaults(suiteName: "com.zerodivisionerror.gridsnap.dev")
 let nc = CGFloat(d?.object(forKey: "cols") == nil ? 10 : d!.integer(forKey: "cols")), nr = CGFloat(d?.object(forKey: "rows") == nil ? 10 : d!.integer(forKey: "rows"))
-let cw = (p2.width - 2 * pad) / nc, ch = (p2.height - pad - header) / nr
+let cw = (p2.width - 2 * pad) / nc, ch: CGFloat = 195 / nr   // the cell area is a fixed 195pt high; the preset list under it makes the panel taller
 let s = CGPoint(x: p2.minX + pad + cw * 1.5, y: p2.minY + header + ch * 1.5), e = CGPoint(x: p2.minX - 400, y: p2.maxY + 300)
 CGWarpMouseCursorPosition(s); usleep(200_000); mouse(.leftMouseDown, s)
 for i in 1...20 { usleep(30_000); mouse(.leftMouseDragged, CGPoint(x: s.x + (e.x - s.x) * CGFloat(i) / 20, y: s.y + (e.y - s.y) * CGFloat(i) / 20)) }
