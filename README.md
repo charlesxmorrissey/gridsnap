@@ -44,18 +44,18 @@ open /Applications/GridSnap.app
 
 ## Use
 
-| Action                     | How                                                                    |
-| -------------------------- | ---------------------------------------------------------------------- |
-| Show the grid              | ⌃⌥D (change it in Settings)                                            |
-| Snap                       | Click or drag cells and release, or press Return                       |
-| Move the selection         | Arrow keys                                                             |
-| Grow or shrink it          | Shift+→ / Shift+↑ grow, Shift+← / Shift+↓ shrink                       |
-| Use another display's grid | Click it, or press Tab                                                 |
-| Cancel                     | Esc                                                                    |
-| Dismiss                    | Click anywhere outside the grid                                        |
-| Save a preset              | Hold Shift when releasing or pressing Return, or use **+** in Settings |
-| Apply a preset             | Its shortcut, or the Presets menu                                      |
-| Undo last snap             | ⌃⌥Z by default, press again to redo                                    |
+| Action | How |
+|---|---|
+| Show the grid | ⌃⌥D (change it in Settings) |
+| Snap | Click or drag cells and release, or press Return |
+| Move the selection | Arrow keys |
+| Grow or shrink it | Shift+→ / Shift+↑ grow, Shift+← / Shift+↓ shrink |
+| Use another display's grid | Click it, or press Tab |
+| Cancel | Esc |
+| Dismiss | Click anywhere outside the grid |
+| Save a preset | Hold Shift when releasing or pressing Return, or use **+** in Settings |
+| Apply a preset | Its shortcut, or the Presets menu |
+| Undo last snap | ⌃⌥Z by default, press again to redo |
 
 The grid opens with the window's current cells outlined, so Return alone aligns it to the grid.
 
