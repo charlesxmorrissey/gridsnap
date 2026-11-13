@@ -14,7 +14,7 @@ func rebuildPresetMenu() {
         item.keyEquivalentModifierMask = modifierFlags(p.combo?.mods ?? 0); item.tag = i; item.target = actions
     }
     if !presets.isEmpty { presetMenu.addItem(.separator()) }
-    if !presets.isEmpty { presetMenu.addItem(withTitle: "On the grid, 1 to 9 apply these in order", action: nil, keyEquivalent: "") }
+    if numberKeys, !presets.isEmpty { presetMenu.addItem(withTitle: "On the grid, 1 to 9 apply these in order", action: nil, keyEquivalent: "") }
     presetMenu.addItem(withTitle: "Shift-release on the grid saves a preset", action: nil, keyEquivalent: "")
 }
 

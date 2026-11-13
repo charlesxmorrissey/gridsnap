@@ -16,6 +16,11 @@ final class MenuActions: NSObject {
         if s.selectedSegment == 0 { recordMode = true; showGrid() }
         else if presetTable.selectedRow >= 0 { presets.remove(at: presetTable.selectedRow) }
     }
+    @objc func pickTheme(_ p: NSPopUpButton) { defaults.set(p.indexOfSelectedItem == 1 ? "divvy" : "default", forKey: "theme"); resetPanels() }
+    @objc func toggleNumberKeys(_ b: NSButton) {
+        defaults.set(b.state == .on, forKey: "numberKeys")
+        presetTable.tableColumns[0].isHidden = !numberKeys; presetTable.sizeLastColumnToFit(); rebuildPresetMenu()
+    }
     @objc func toggleLogin(_ item: NSMenuItem) {
         let svc = SMAppService.mainApp
         try? (svc.status == .enabled ? svc.unregister() : svc.register())
@@ -67,7 +72,7 @@ let presetTable: NSTableView = {
     let t = NSTableView()
     for (id, title, w) in [("n", "#", 16), ("name", "Name", 122), ("region", "Region", 125), ("key", "Shortcut", 92)] as [(String, String, CGFloat)] {
         let c = NSTableColumn(identifier: .init(id)); c.title = title; c.width = w; t.addTableColumn(c)
-        if id == "n" { c.minWidth = w; c.maxWidth = w; c.headerToolTip = "Press this number on the grid to apply the preset. Drag rows to reorder." }
+        if id == "n" { c.minWidth = w; c.maxWidth = w; c.headerToolTip = "Press this number on the grid to apply the preset. Drag rows to reorder."; c.isHidden = !numberKeys }
     }
     t.registerForDraggedTypes([.string])
     t.dataSource = tableSource; t.delegate = tableSource; t.rowHeight = 26
@@ -98,15 +103,21 @@ func shortcutRow(_ current: @escaping () -> (code: Int, mods: Int, label: String
     }
     return b
 }
-let shortcut = shortcutRow({ mainCombo }, keys: ("keyCode", "keyMods", "keyLabel"), isMain: true, y: 508)
-let undoShortcut = shortcutRow({ undoCombo }, keys: ("undoCode", "undoMods", "undoLabel"), isMain: false, y: 468)
+let shortcut = shortcutRow({ mainCombo }, keys: ("keyCode", "keyMods", "keyLabel"), isMain: true, y: 542)
+let undoShortcut = shortcutRow({ undoCombo }, keys: ("undoCode", "undoMods", "undoLabel"), isMain: false, y: 502)
 
 let prefs: NSWindow = {
-    let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 460, height: 560), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+    let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 460, height: 594), styleMask: [.titled, .closable], backing: .buffered, defer: false)
     w.title = "GridSnap Settings"
     w.isReleasedWhenClosed = false
     let caption = NSTextField(labelWithString: "Show grid:")
-    caption.frame = NSRect(x: 20, y: 514, width: 90, height: 20); caption.alignment = .right
+    caption.frame = NSRect(x: 20, y: 548, width: 90, height: 20); caption.alignment = .right
+    let themeCaption = NSTextField(labelWithString: "Theme:")
+    themeCaption.frame = NSRect(x: 20, y: 366, width: 90, height: 20); themeCaption.alignment = .right
+    let theme = NSPopUpButton(frame: NSRect(x: 116, y: 360, width: 120, height: 28))
+    theme.addItems(withTitles: ["Default", "Divvy"]); theme.selectItem(at: divvy ? 1 : 0)
+    theme.target = actions; theme.action = #selector(MenuActions.pickTheme)
+    theme.toolTip = "Default is the glass panel shaped like the display. Divvy is a flat dark panel that dims the grids on the other displays."
     let targetCaption = NSTextField(labelWithString: "Target:")
     targetCaption.frame = NSRect(x: 20, y: 326, width: 90, height: 20); targetCaption.alignment = .right
     let focusedRadio = NSButton(radioButtonWithTitle: "Focused window", target: actions, action: #selector(MenuActions.pickTarget))
@@ -117,6 +128,9 @@ let prefs: NSWindow = {
     (defaults.bool(forKey: "underCursor") ? cursorRadio : focusedRadio).state = .on   // same action + superview = one radio group
     let presetsCaption = NSTextField(labelWithString: "Presets")
     presetsCaption.frame = NSRect(x: 20, y: 274, width: 200, height: 20); presetsCaption.font = .boldSystemFont(ofSize: NSFont.systemFontSize)
+    let numbers = NSButton(checkboxWithTitle: "Number keys on the grid", target: actions, action: #selector(MenuActions.toggleNumberKeys))
+    numbers.frame = NSRect(x: 260, y: 274, width: 180, height: 20); numbers.state = numberKeys ? .on : .off
+    numbers.toolTip = "Lists the first nine presets under the grid. Press 1 to 9 on the grid, or click a name, to apply one."
     let scroll = NSScrollView(frame: NSRect(x: 20, y: 48, width: 420, height: 218))
     scroll.documentView = presetTable; scroll.hasVerticalScroller = true; scroll.borderType = .bezelBorder
     presetTable.autoresizingMask = [.width]; presetTable.sizeLastColumnToFit()   // never wider than the visible area
@@ -125,11 +139,11 @@ let prefs: NSWindow = {
     plusMinus.setToolTip("Opens the grid: drag a region to save it as a preset. Shift-release on the grid does the same.", forSegment: 0)
     plusMinus.setToolTip("Removes the selected preset.", forSegment: 1)
     let undoCaption = NSTextField(labelWithString: "Undo snap:")
-    undoCaption.frame = NSRect(x: 20, y: 474, width: 90, height: 20); undoCaption.alignment = .right
-    let views = [caption, shortcut, undoCaption, undoShortcut, targetCaption, focusedRadio, cursorRadio, presetsCaption, scroll, plusMinus]
-        + settingRow("Columns:", key: "cols", y: 428, min: 1, max: 24, step: 1)
-        + settingRow("Rows:", key: "rows", y: 394, min: 1, max: 24, step: 1)
-        + settingRow("Gap:", key: "gap", y: 360, min: 0, max: 64, step: 2, unit: "points")
+    undoCaption.frame = NSRect(x: 20, y: 508, width: 90, height: 20); undoCaption.alignment = .right
+    let views = [caption, shortcut, undoCaption, undoShortcut, themeCaption, theme, targetCaption, focusedRadio, cursorRadio, presetsCaption, numbers, scroll, plusMinus]
+        + settingRow("Columns:", key: "cols", y: 462, min: 1, max: 24, step: 1)
+        + settingRow("Rows:", key: "rows", y: 428, min: 1, max: 24, step: 1)
+        + settingRow("Gap:", key: "gap", y: 394, min: 0, max: 64, step: 2, unit: "points")
     for v in views { w.contentView?.addSubview(v) }
     NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: w, queue: nil) { _ in
         ShortcutButton.active?.cancelRecording(); NSApp.hide(nil)   // give focus back

@@ -60,7 +60,7 @@ func newPreset(_ f: NSRect) {
     let name = NSTextField(frame: NSRect(x: 0, y: 40, width: 260, height: 24))
     name.placeholderString = "Name"; name.stringValue = "Preset \(presets.count + 1)"
     let key = ShortcutButton.make(nil, clearable: true)
-    if presets.count < 9 { dialog.informativeText = "Press \(presets.count + 1) on the grid to apply it. A global shortcut is optional." }
+    if numberKeys, presets.count < 9 { dialog.informativeText = "Press \(presets.count + 1) on the grid to apply it. A global shortcut is optional." }
     key.frame = NSRect(x: 0, y: 0, width: 260, height: 32)
     box.addSubview(name); box.addSubview(key)
     dialog.accessoryView = box

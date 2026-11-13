@@ -11,7 +11,7 @@ An open source alternative to [Divvy](https://mizage.com/divvy/) for macOS. Pres
 - Snap the focused window or the one under the cursor
 - A grid on every display: snap to any display's grid to move the window there
 - The app the window belongs to, icon and name, above every grid
-- Divvy's look: a translucent dark panel with flat outlined cells; the display under the cursor is bright and the others dim
+- Two themes: Divvy's look (a translucent dark panel with flat outlined cells; the display under the cursor is bright and the others dim), or the default glass panel
 - Menu bar app, launch at login, no Dock icon
 - No network access, no analytics, no accounts
 
@@ -63,7 +63,7 @@ With more than one display, a grid appears on each of them. Select cells on any 
 
 Wider gutters in the grid mark halves, thirds and quarters.
 
-**Settings** (menu bar icon › Settings…) holds both shortcuts, columns and rows, the gap in points between snapped windows, the target rule, and the presets table. Names and shortcuts are editable in place; **−** removes the selected preset.
+**Settings** (menu bar icon › Settings…) holds both shortcuts, columns and rows, the gap in points between snapped windows, the theme, the target rule, and the presets table. **Number keys on the grid** lists the first nine presets under the grid, where 1 to 9 or a click applies one. Names and shortcuts are editable in place; **−** removes the selected preset.
 
 ## Development
 

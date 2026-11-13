@@ -22,8 +22,10 @@ let defaults: UserDefaults = {
             d.set(try! JSONEncoder().encode(old + defaultPresets.dropFirst(old.count)), forKey: "presets")
         }
     }
-    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "presets": try! JSONEncoder().encode(defaultPresets)])
+    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "theme": "divvy", "presets": try! JSONEncoder().encode(defaultPresets)])
     return d
 }()
+var numberKeys: Bool { defaults.bool(forKey: "numberKeys") }   // off unless set in Settings: the preset list under the grid and keys 1 to 9
+var divvy: Bool { defaults.string(forKey: "theme") == "divvy" }   // the panel's look: "divvy" (this fork's default) or "default", upstream's glass panel
 var cols: Int { min(max(defaults.integer(forKey: "cols"), 1), 24) }
 var rows: Int { min(max(defaults.integer(forKey: "rows"), 1), 24) }
