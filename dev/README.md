@@ -15,13 +15,12 @@ icons, runs `demo.swift` (which records both displays with `screencapture -v` wh
 hand-off, a drag to each display, the clamp), then restores everything; the ffmpeg line in its comment stitches the
 two clips. Run it through a terminal that holds the Accessibility and Screen Recording grants.
 
-`tour.sh` and `clampdemo.sh` record the two videos for the upstream discussion. `tour.sh` records the Theme popup and
-the "Number keys on the grid" checkbox with the Settings window in view. `clampdemo.sh` records three drags past the panel
+`clampdemo.sh` records the clamp video for the upstream discussion. It records three drags past the panel
 edge two times, and both builds come from upstream's source: one time as upstream wrote it, and one time with the
-drag changed to keep the edge cell. The two clips then play next to each other. Each script
+drag changed to keep the edge cell. The two clips then play next to each other. The script
 shows a Start dialog first. After you click Start, do not touch the mouse or the keyboard until your apps come back.
-Each script draws `backdrop.swift` behind the windows. The backdrop hides the wallpaper and the desktop widgets, which
-can show reminders and calendar entries. Start each script through a terminal that holds the two grants, for example
-`open -na Ghostty --args -e "$PWD/dev/tour.sh"`. Each script writes a log in `/tmp` that ends with `finished`. The
-comment at the end of each script gives the ffmpeg command that adds the captions and writes the final file. Before you
+The script draws `backdrop.swift` behind the windows. The backdrop hides the wallpaper and the desktop widgets, which
+can show reminders and calendar entries. Start the script through a terminal that holds the two grants, for example
+`open -na Ghostty --args -e "$PWD/dev/clampdemo.sh"`. The script writes a log in `/tmp` that ends with `finished`. The
+comment at the end of the script gives the ffmpeg command that adds the captions and writes the final file. Before you
 share a video, look at the top left corner of the display through the full clip, because that is where the widgets are.

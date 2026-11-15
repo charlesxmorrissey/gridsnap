@@ -28,30 +28,35 @@ func textFrame() -> CGRect {
     AXUIElementCopyAttributeValue(win, kAXPositionAttribute as CFString, &p); AXUIElementCopyAttributeValue(win, kAXSizeAttribute as CFString, &s)
     var f = CGRect.zero; AXValueGetValue(p as! AXValue, .cgPoint, &f.origin); AXValueGetValue(s as! AXValue, .cgSize, &f.size); return f
 }
-let hot: (CGKeyCode, CGEventFlags) = (CGKeyCode(kVK_ANSI_D), [.maskControl, .maskAlternate])   // dev build: fresh defaults domain, so ⌃⌥D and 12x8
+// The dev build's hotkey is ⇧⌘Space, pressed as real modifier keys. Grid size comes from the dev build's defaults (cols/rows, 10 when unset).
+func key(_ k: CGKeyCode, down: Bool, _ flags: CGEventFlags) { let e = CGEvent(keyboardEventSource: nil, virtualKey: k, keyDown: down)!; e.flags = flags; e.post(tap: .cghidEventTap); usleep(40_000) }
+func hotkey() { key(CGKeyCode(kVK_Shift), down: true, .maskShift); key(CGKeyCode(kVK_Command), down: true, [.maskShift, .maskCommand]); key(CGKeyCode(kVK_Space), down: true, [.maskShift, .maskCommand]); key(CGKeyCode(kVK_Space), down: false, [.maskShift, .maskCommand]); key(CGKeyCode(kVK_Command), down: false, .maskShift); key(CGKeyCode(kVK_Shift), down: false, []) }
+let d = UserDefaults(suiteName: "com.zerodivisionerror.gridsnap.dev")
+let nc = CGFloat(d?.object(forKey: "cols") == nil ? 10 : d!.integer(forKey: "cols")), nr = CGFloat(d?.object(forKey: "rows") == nil ? 10 : d!.integer(forKey: "rows"))
 NSRunningApplication(processIdentifier: textPid)!.activate()
 usleep(400_000)
 print("TextEdit before:", textFrame())
 switch mode {
 case "open":
     CGWarpMouseCursorPosition(CGPoint(x: 960, y: 540)); usleep(100_000)   // cursor on the primary display
-    post(hot.0, hot.1); usleep(600_000)
+    hotkey(); usleep(900_000)
     let p = panels(); print("GridSnap panels on screen:", p.count); p.forEach { print("  ", $0) }
     post(CGKeyCode(kVK_Escape)); usleep(1_000_000)
     print("after esc, panels:", panels().count)
 case "drag":   // open, then drag the left half of the second display's grid (display 2 is at x -1920...0)
     CGWarpMouseCursorPosition(CGPoint(x: 960, y: 540)); usleep(100_000)
-    post(hot.0, hot.1); usleep(600_000)
+    hotkey(); usleep(900_000)
     guard let p2 = panels().first(where: { $0.minX < 0 }) else { print("no panel on display 2"); exit(1) }
     print("panel on display 2:", p2)
-    let pad: CGFloat = 20, header: CGFloat = 62, cw = (p2.width - 2 * pad) / 12, ch = (p2.height - pad - header) / 8   // room around the cells, app icon and name above them
-    click(CGPoint(x: p2.minX + pad + cw * 0.5, y: p2.minY + header + ch * 0.5), drag: CGPoint(x: p2.minX + pad + cw * 5.5, y: p2.minY + header + ch * 7.5))
+    let pad: CGFloat = 20, header: CGFloat = 62, cw = (p2.width - 2 * pad) / nc, ch: CGFloat = 195 / nr   // room around the cells, app icon and name above them; the cell area is a fixed 195pt high
+    click(CGPoint(x: p2.minX + pad + cw * 0.5, y: p2.minY + header + ch * 0.5), drag: CGPoint(x: p2.minX + pad + cw * (nc / 2 - 0.5), y: p2.minY + header + ch * (nr - 0.5)))
     usleep(600_000)
     print("after drag, panels:", panels().count)
-    print("TextEdit after:", textFrame())
+    let f = textFrame(); print("TextEdit after:", f)
+    print(abs(f.minX - -1920) < 2 && abs(f.width - 960) < 3 && abs(f.minY - 30) < 3 && abs(f.height - 1050) < 3 && panels().isEmpty ? "OK: left half of display 2" : "WRONG")
 case "tab":   // open, Tab to the other display, Return: with no selection there nothing moves; arrows then Return snap there
     CGWarpMouseCursorPosition(CGPoint(x: 960, y: 540)); usleep(100_000)
-    post(hot.0, hot.1); usleep(600_000)
+    hotkey(); usleep(900_000)
     print("panels:", panels().count)
     post(CGKeyCode(kVK_Tab)); usleep(300_000)
     print("after tab, panels:", panels().count)
