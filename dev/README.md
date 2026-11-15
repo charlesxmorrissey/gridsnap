@@ -16,8 +16,9 @@ hand-off, a drag to each display, the clamp), then restores everything; the ffmp
 two clips. Run it through a terminal that holds the Accessibility and Screen Recording grants.
 
 `tour.sh` and `clampdemo.sh` record the two videos for the upstream discussion. `tour.sh` records the Theme popup and
-the "Number keys on the grid" checkbox with the Settings window in view. `clampdemo.sh` records one drag past the panel
-edge two times: one time on a build with upstream's cancel behavior, and one time on the current build. Each script
+the "Number keys on the grid" checkbox with the Settings window in view. `clampdemo.sh` records three drags past the panel
+edge two times, and both builds come from upstream's source: one time as upstream wrote it, and one time with the
+drag changed to keep the edge cell. The two clips then play next to each other. Each script
 shows a Start dialog first. After you click Start, do not touch the mouse or the keyboard until your apps come back.
 Each script draws `backdrop.swift` behind the windows. The backdrop hides the wallpaper and the desktop widgets, which
 can show reminders and calendar entries. Start each script through a terminal that holds the two grants, for example
