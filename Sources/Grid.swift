@@ -63,6 +63,7 @@ final class GridView: NSView {
     var list: [Preset] = [], pressed: Int?
     var listHeight: CGFloat { list.isEmpty ? 0 : CGFloat((list.count + 2) / 3) * 20 + 8 }   // the preset list sits under the grid, inside the same margin
     var grid: NSRect { NSRect(x: GridView.pad, y: GridView.pad + listHeight, width: bounds.width - 2 * GridView.pad, height: bounds.height - GridView.pad - listHeight - header) }
+    var cellArea: NSRect { NSRect(x: 0, y: 0, width: bounds.width, height: bounds.height - (targetApp == nil ? 0 : header - 12)) }   // the panel minus the icon and name; the margins stay in
     func entryRect(_ i: Int) -> NSRect {
         let w = grid.width / 3
         return NSRect(x: grid.minX + CGFloat(i % 3) * w, y: GridView.pad + CGFloat((list.count - 1) / 3 - i / 3) * 20, width: w, height: 20)
@@ -104,10 +105,12 @@ final class GridView: NSView {
 
     override func mouseDown(with e: NSEvent) {
         guard gridActive else { return }
-        if !list.isEmpty, convert(e.locationInWindow, from: nil).y < grid.minY - 4 { pressed = entry(e); needsDisplay = true; return }
+        let p = convert(e.locationInWindow, from: nil)
+        guard cellArea.contains(p) else { return }   // a click on the header selects nothing
+        if !list.isEmpty, p.y < grid.minY - 4 { pressed = entry(e); needsDisplay = true; return }
         dragging = self; claim(); start = cell(e); end = start; pending = false; needsDisplay = true   // no preview yet: one cell is a tiny window, wait for the drag
     }
-    func track(_ e: NSEvent) {   // the drag clamps to the edge cell outside the panel, like Divvy; Esc is the way out
+    func track(_ e: NSEvent) {   // the drag clamps to the edge cell outside the panel and on the header, like Divvy; Esc is the way out
         guard gridActive else { return }
         let new = cell(e)
         guard new.0 != end?.0 || new.1 != end?.1 else { return }   // only hit AX when the cell changes
@@ -163,11 +166,12 @@ final class GridView: NSView {
 
     override func draw(_ dirty: NSRect) {
         guard !grid.isEmpty else { return }   // layer-backed views get drawn at zero size before the panel is shown
+        let style = NSMutableParagraphStyle(); style.lineBreakMode = .byTruncatingTail
         if let app = targetApp {   // header: the app the window belongs to, same on every display
             let icon = NSRect(x: grid.minX, y: grid.maxY + header - GridView.pad - 30, width: 30, height: 30)   // the margin below the top edge
             app.icon?.draw(in: icon, from: .zero, operation: .sourceOver, fraction: 1)
             let name = NSAttributedString(string: app.localizedName ?? "", attributes: [
-                .font: NSFont.systemFont(ofSize: 18, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.92)])
+                .font: NSFont.systemFont(ofSize: 18, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.92), .paragraphStyle: style])
             let s = name.size()
             name.draw(in: NSRect(x: icon.maxX + 12, y: icon.midY - s.height / 2, width: grid.maxX - icon.maxX - 12, height: s.height))
         }
@@ -217,7 +221,6 @@ final class GridView: NSView {
                 cell(p, fill: NSColor(white: 1, alpha: 0.27))
             }
         }
-        let style = NSMutableParagraphStyle(); style.lineBreakMode = .byTruncatingTail
         for (i, p) in list.enumerated() {
             let r = entryRect(i), cap = NSRect(x: r.minX + 2, y: r.midY - 8, width: 16, height: 16)
             if pressed == i { NSColor.white.withAlphaComponent(0.15).setFill(); NSBezierPath(roundedRect: r, xRadius: 5, yRadius: 5).fill() }
@@ -284,7 +287,6 @@ func showGrid() {
     targetWindow = recordMode ? nil : pickTarget()   // before the panels appear; record mode moves nothing
     original = targetWindow.flatMap(axFrame)
     if original == nil { targetWindow = nil }
-    targetApp = targetWindow.flatMap(appOf)
     moved = false; dragging = nil
     let screens = NSScreen.screens, ghosts = ghostFrames(), top = NSScreen.screens[0].frame.maxY
     let list = recordMode || !numberKeys ? [] : Array(presets.prefix(9))
