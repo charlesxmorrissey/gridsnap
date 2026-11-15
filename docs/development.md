@@ -29,17 +29,19 @@ The build script finds this certificate and signs the app with it. To sign with 
 
 All the code is in `Sources/`:
 
-| File                   | What it holds                         |
-| ---------------------- | ------------------------------------- |
-| `main.swift`           | Startup                               |
-| `AX.swift`             | The code that finds and moves windows |
-| `Grid.swift`           | The grid overlay                      |
-| `Presets.swift`        | Presets                               |
-| `Hotkeys.swift`        | Global shortcuts                      |
-| `ShortcutButton.swift` | The button that records a shortcut    |
-| `SettingsWindow.swift` | The Settings window                   |
-| `Menu.swift`           | The menu bar menu                     |
-| `Defaults.swift`       | Stored settings                       |
+| File                   | What it holds                                                |
+| ---------------------- | ------------------------------------------------------------ |
+| `main.swift`           | Startup                                                      |
+| `AX.swift`             | The code that finds and moves windows                        |
+| `Grid.swift`           | The grid overlay                                             |
+| `Themes.swift`         | The code that reads a theme and finds its problems           |
+| `BuiltinThemes.swift`  | The ten built-in themes and this fork's Divvy theme, as JSON |
+| `Presets.swift`        | Presets                                                      |
+| `Hotkeys.swift`        | Global shortcuts                                             |
+| `ShortcutButton.swift` | The button that records a shortcut                           |
+| `SettingsWindow.swift` | The Settings window                                          |
+| `Menu.swift`           | The menu bar menu                                            |
+| `Defaults.swift`       | Stored settings                                              |
 
 ## App icon
 

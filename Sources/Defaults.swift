@@ -1,7 +1,8 @@
 import Cocoa
 import Carbon
 
-// grid, gap, hotkey (keyCode/keyMods/keyLabel, default ⌃⌥D), target rule, what the panel shows (showHeader, showList) and presets live in UserDefaults
+// grid, gap, hotkey (keyCode/keyMods/keyLabel, default ⌃⌥D), target rule, what the panel shows (showHeader, showList, showMarks), its theme
+// (theme: a built-in name or a file name; appearance: 0 match system, 1 light, 2 dark) and presets live in UserDefaults
 let defaultPresets = [
     Preset(name: "Full screen", x: 0, y: 0, w: 1, h: 1, keyCode: kVK_ANSI_F, keyMods: optionKey | controlKey, keyLabel: "⌃⌥F"),
     Preset(name: "Left half", x: 0, y: 0, w: 0.5, h: 1),
@@ -22,9 +23,10 @@ let defaults: UserDefaults = {
             d.set(try! JSONEncoder().encode(old + defaultPresets.dropFirst(old.count)), forKey: "presets")
         }
     }
-    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "theme": "divvy", "showHeader": true, "showList": true, "presets": try! JSONEncoder().encode(defaultPresets)])
+    if let old = d.string(forKey: "theme"), let now = ["divvy": "Divvy", "default": "Default"][old] { d.set(now, forKey: "theme") }   // fork: the names its own Theme popup stored before 0.1.14
+    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "showHeader": true, "showList": true, "showMarks": true, "theme": "Divvy", "appearance": 0,
+                          "presets": try! JSONEncoder().encode(defaultPresets)])
     return d
 }()
-var divvy: Bool { defaults.string(forKey: "theme") == "divvy" }   // the panel's look: "divvy" (this fork's default) or "default", upstream's glass panel
 var cols: Int { min(max(defaults.integer(forKey: "cols"), 1), 24) }
 var rows: Int { min(max(defaults.integer(forKey: "rows"), 1), 24) }
