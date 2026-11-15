@@ -3,12 +3,12 @@
 # `./build.sh release` zips it for a GitHub release.
 # No Xcode project: swiftc compiles every file in Sources/. Needs Command Line Tools with the macOS 26 SDK.
 # Signing: CODESIGN_IDENTITY, else a "Developer ID Application" certificate, else "GridSnap Dev", else ad-hoc.
-# Ad-hoc signatures change every build, which makes macOS forget the Accessibility grant (see README).
+# Ad-hoc signatures change every build, which makes macOS forget the Accessibility grant (see docs/development.md).
 # A Developer ID build gets the hardened runtime, and `release` notarizes and staples it.
 # Notary credentials come from the keychain profile NOTARY_PROFILE (default gridsnap-notary).
 cd "$(dirname "$0")"
 APP=build/GridSnap.app
-VERSION=0.1.11
+VERSION=0.1.13
 rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 for ARCH in arm64 x86_64; do swiftc -O -target "$ARCH-apple-macos14.0" Sources/*.swift -o "build/GridSnap-$ARCH"; done

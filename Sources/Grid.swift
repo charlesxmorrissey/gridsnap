@@ -58,12 +58,12 @@ final class GridView: NSView {
     static let cells = NSSize(width: 280, height: 195)   // Divvy's panel, measured: a fixed grid, not the display's aspect
     static var pad: CGFloat { divvy ? 20 : 10 }
     static var headerHeight: CGFloat { pad + 42 }   // margin, 30pt icon, 12pt above the grid
-    var header: CGFloat { targetApp == nil ? GridView.pad : GridView.headerHeight }   // from the top edge to the grid: icon and name of the target app, or just the margin
-    // upstream 0.1.10 lists the presets under the grid; here the list and keys 1 to 9 are a setting (numberKeys), off by default, so the panel stays as Divvy draws it
+    var showsHeader = false   // the target app's icon and name; set when the grid opens, off without a target or with the header turned off in Settings
+    var header: CGFloat { showsHeader ? GridView.headerHeight : GridView.pad }   // from the top edge to the grid: the icon and name, or just the margin
     var list: [Preset] = [], pressed: Int?
     var listHeight: CGFloat { list.isEmpty ? 0 : CGFloat((list.count + 2) / 3) * 20 + 8 }   // the preset list sits under the grid, inside the same margin
     var grid: NSRect { NSRect(x: GridView.pad, y: GridView.pad + listHeight, width: bounds.width - 2 * GridView.pad, height: bounds.height - GridView.pad - listHeight - header) }
-    var cellArea: NSRect { NSRect(x: 0, y: 0, width: bounds.width, height: bounds.height - (targetApp == nil ? 0 : header - 12)) }   // the panel minus the icon and name; the margins stay in
+    var cellArea: NSRect { NSRect(x: 0, y: 0, width: bounds.width, height: bounds.height - (showsHeader ? header - 12 : 0)) }   // the panel minus the icon and name; the margins stay in
     func entryRect(_ i: Int) -> NSRect {
         let w = grid.width / 3
         return NSRect(x: grid.minX + CGFloat(i % 3) * w, y: GridView.pad + CGFloat((list.count - 1) / 3 - i / 3) * 20, width: w, height: 20)
@@ -127,7 +127,7 @@ final class GridView: NSView {
         guard gridActive else { return }
         if e.keyCode == 53 { cancelGrid(); return }   // esc, also mid-drag
         let shift = e.modifierFlags.contains(.shift)
-        if numberKeys, e.modifierFlags.intersection([.command, .control, .option]).isEmpty,
+        if e.modifierFlags.intersection([.command, .control, .option]).isEmpty,
            let i = presetKeys.lazy.compactMap({ $0.firstIndex(of: Int(e.keyCode)) }).first {
             if i < presets.count { commitGrid(preset: presets[i], on: screen) }
             return
@@ -167,7 +167,7 @@ final class GridView: NSView {
     override func draw(_ dirty: NSRect) {
         guard !grid.isEmpty else { return }   // layer-backed views get drawn at zero size before the panel is shown
         let style = NSMutableParagraphStyle(); style.lineBreakMode = .byTruncatingTail
-        if let app = targetApp {   // header: the app the window belongs to, same on every display
+        if showsHeader, let app = targetApp {   // header: the app the window belongs to, same on every display
             let icon = NSRect(x: grid.minX, y: grid.maxY + header - GridView.pad - 30, width: 30, height: 30)   // the margin below the top edge
             app.icon?.draw(in: icon, from: .zero, operation: .sourceOver, fraction: 1)
             let name = NSAttributedString(string: app.localizedName ?? "", attributes: [
@@ -289,7 +289,8 @@ func showGrid() {
     if original == nil { targetWindow = nil }
     moved = false; dragging = nil
     let screens = NSScreen.screens, ghosts = ghostFrames(), top = NSScreen.screens[0].frame.maxY
-    let list = recordMode || !numberKeys ? [] : Array(presets.prefix(9))
+    let list = recordMode || !defaults.bool(forKey: "showList") ? [] : Array(presets.prefix(9))   // hiding the list leaves keys 1 to 9 working
+    let header = targetApp != nil && defaults.bool(forKey: "showHeader")
     while grids.count < screens.count { grids.append(spare.popLast() ?? GridView()) }
     while grids.count > screens.count { let g = grids.removeLast(); g.clear(); g.panel.orderOut(nil); spare.append(g) }
     let frame = original.map { NSRect(x: $0.0.x, y: top - $0.0.y - $0.1.height, width: $0.1.width, height: $0.1.height) }
@@ -297,7 +298,7 @@ func showGrid() {
     let keyFrame = (home ?? screenUnderCursor()).frame
     var key = grids[0]
     for (g, s) in zip(grids, screens) {
-        g.screen = s; g.list = list; g.clear()
+        g.screen = s; g.list = list; g.showsHeader = header; g.clear()
         g.ghosts = ghosts.map { screenFraction(of: $0, on: s) }.filter { !$0.isEmpty }
         if s.frame == keyFrame { key = g }
         if let r = frame, s.frame == home?.frame {
