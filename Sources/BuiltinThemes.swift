@@ -34,24 +34,6 @@ let builtinThemes: [(name: String, json: String)] = [
   }
 }
 """),
-// fork: Divvy's panel, measured from Divvy: small and fixed, black at 60% with a thin light edge, flat outlined cells with an
-// even 3pt gap, the cell under the cursor lit, the panels on the other displays faded. The same in light and dark.
-("Divvy", """
-{
-  "panel":     { "fill": "#000000 60%", "stroke": "#FFFFFF 32%", "lineWidth": 1, "radius": 12 },
-  "header":    { "text": "#FFFFFF 92%" },
-  "cell":      { "fill": "#000000 25%", "stroke": "#FFFFFF 42%", "lineWidth": 1, "radius": 4 },
-  "ghost":     { "fill": "#FFFFFF 8%", "stroke": "none", "lineWidth": 0, "radius": 4 },
-  "selection": { "fill": "#FFFFFF 27%", "stroke": "#FFFFFF 42%", "lineWidth": 1, "radius": 4 },
-  "pending":   { "fill": "none", "stroke": "#FFFFFF 70%", "lineWidth": 1, "radius": 4 },
-  "hover":     { "fill": "#FFFFFF 14%", "stroke": "#FFFFFF 42%", "lineWidth": 1, "radius": 4 },
-  "preset":    { "fill": "#FFFFFF 15%", "text": "#FFFFFF 85%" },
-  "keycap":    { "fill": "#FFFFFF 18%", "text": "#FFFFFF" },
-  "focusRing": { "lineWidth": 0 },
-  "layout":    { "width": 320, "cellsHeight": 195, "padding": 20, "headerTop": 20, "iconSize": 30, "headerGap": 12, "nameSize": 18, "dimOthers": "60%", "shadow": true, "glass": false },
-  "spacing": 3
-}
-"""),
 ("Graphite", """
 {
   "dark": {

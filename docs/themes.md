@@ -29,18 +29,8 @@ This theme draws square outlined cells in amber and leaves everything else as it
 
 ```json
 {
-  "cell": {
-    "fill": "none",
-    "stroke": "#FFB000 40%",
-    "lineWidth": 1,
-    "radius": 0
-  },
-  "selection": {
-    "fill": "#FFB000 85%",
-    "stroke": "#FFFFFF",
-    "lineWidth": 2,
-    "radius": 0
-  },
+  "cell":      { "fill": "none", "stroke": "#FFB000 40%", "lineWidth": 1, "radius": 0 },
+  "selection": { "fill": "#FFB000 85%", "stroke": "#FFFFFF", "lineWidth": 2, "radius": 0 },
   "spacing": 2,
   "light": {
     "selection": { "stroke": "#7A5200" }
@@ -61,69 +51,71 @@ A file from **Edit a Copy…** lists every value of both versions, so everything
 
 ### Elements
 
-| Element     | What it is                                                                                                                        | Uses                                            |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `panel`     | The panel behind everything. A fill is drawn over the glass, so a see-through colour tints the glass and a solid colour hides it. | `fill`, `stroke`, `lineWidth`, `radius`         |
-| `header`    | The app's name above the cells                                                                                                    | `text`                                          |
-| `cell`      | One cell of the grid                                                                                                              | `fill`, `stroke`, `lineWidth`, `radius`         |
-| `ghost`     | A window you snapped earlier                                                                                                      | `fill`, `stroke`, `lineWidth`, `radius`         |
-| `selection` | The cells you selected                                                                                                            | `fill`, `stroke`, `lineWidth`, `radius`         |
-| `pending`   | The cells that the window covers when the grid opens, before you select anything                                                  | `fill`, `stroke`, `lineWidth`, `radius`         |
-| `preset`    | A line in the preset list. The fill and stroke show while you click it.                                                           | `fill`, `stroke`, `lineWidth`, `radius`, `text` |
-| `keycap`    | The number beside a preset                                                                                                        | `fill`, `stroke`, `lineWidth`, `radius`, `text` |
-| `focusRing` | The outline of the panel that has the keyboard, when you have more than one display                                               | `stroke`, `lineWidth`                           |
+| Element | What it is | Uses |
+|---|---|---|
+| `panel` | The panel behind everything. A fill is drawn over the glass, so a see-through colour tints the glass and a solid colour hides it. | `fill`, `stroke`, `lineWidth`, `radius` |
+| `header` | The app's name above the cells | `text` |
+| `cell` | One cell of the grid | `fill`, `stroke`, `lineWidth`, `radius` |
+| `ghost` | A window you snapped earlier | `fill`, `stroke`, `lineWidth`, `radius` |
+| `selection` | The cells you selected | `fill`, `stroke`, `lineWidth`, `radius` |
+| `pending` | The cells that the window covers when the grid opens, before you select anything | `fill`, `stroke`, `lineWidth`, `radius` |
+| `preset` | A line in the preset list. The fill and stroke show while you click it. | `fill`, `stroke`, `lineWidth`, `radius`, `text` |
+| `keycap` | The number beside a preset | `fill`, `stroke`, `lineWidth`, `radius`, `text` |
+| `focusRing` | The outline of the panel that has the keyboard, when you have more than one display | `stroke`, `lineWidth` |
 
 ### Properties
 
-| Property    | Value                                                                                                        |
-| ----------- | ------------------------------------------------------------------------------------------------------------ |
-| `fill`      | The colour inside the shape                                                                                  |
-| `stroke`    | The colour of the outline                                                                                    |
-| `text`      | The colour of the text                                                                                       |
-| `lineWidth` | The width of the outline, in points. `0` draws no outline.                                                   |
-| `radius`    | How round the corners are, in points. `0` gives square corners, and a large number gives a pill or a circle. |
+| Property | Value |
+|---|---|
+| `fill` | The colour inside the shape |
+| `stroke` | The colour of the outline |
+| `text` | The colour of the text |
+| `lineWidth` | The width of the outline, in points. `0` draws no outline. |
+| `radius` | How round the corners are, in points. `0` gives square corners, and a large number gives a pill or a circle. |
 
 `"spacing"` is not part of an element. It is the space between two cells, in points. `0` makes the cells touch, except at the halves, thirds and quarters of the display, where the gaps are wider. To remove those gaps too, turn off **Wider gaps at halves, thirds and quarters** in Settings.
 
 ### Colours
 
-| You write       | You get                                                        |
-| --------------- | -------------------------------------------------------------- |
-| `"#FFB000"`     | A colour, as red, green and blue in hexadecimal                |
-| `"#FFB000 40%"` | The same colour at 40% opacity                                 |
-| `"#FFB00066"`   | The same again, with the opacity as a fourth hexadecimal pair  |
-| `"accent"`      | The accent colour you chose in System Settings                 |
-| `"accent 30%"`  | The accent colour at 30% opacity                               |
-| `"none"`        | Nothing. Use it to remove a fill or a stroke that Default has. |
+| You write | You get |
+|---|---|
+| `"#FFB000"` | A colour, as red, green and blue in hexadecimal |
+| `"#FFB000 40%"` | The same colour at 40% opacity |
+| `"#FFB00066"` | The same again, with the opacity as a fourth hexadecimal pair |
+| `"accent"` | The accent colour you chose in System Settings |
+| `"accent 30%"` | The accent colour at 30% opacity |
+| `"none"` | Nothing. Use it to remove a fill or a stroke that Default has. |
 
 ## What this fork adds
 
-This fork has an eleventh built-in theme, Divvy, and uses it by default. Divvy needs two things that the theme file above cannot say, so this fork adds them. A theme that uses them works only in this fork. The original GridSnap reports them as a mistake.
+This fork adds two things to the theme file, so that a theme can look and behave like Divvy's panel. A theme that uses them works only in this fork. The original GridSnap reports them as a mistake.
+
+`dev/Divvy.json` is such a theme. To use it, copy it into `~/Library/Application Support/GridSnap/Themes` and choose Divvy in Settings.
 
 `hover` is one more element. It is the cell under the pointer, before you start a drag. It uses `fill`, `stroke`, `lineWidth` and `radius`. If a theme gives it no fill and no stroke, nothing is drawn.
 
 `"layout"` is an object, like `"spacing"` it is not an element. It sets the sizes of the panel:
 
-| Key           | Value                                                                                                       |
-| ------------- | ----------------------------------------------------------------------------------------------------------- |
-| `width`       | The width of the panel, in points                                                                           |
-| `cellsHeight` | The height of the cell area, in points. If you leave it out, the cell area has the shape of the display.    |
-| `padding`     | The space between the edge of the panel and the cells, in points                                            |
-| `headerTop`   | The space above the app's icon, in points                                                                   |
-| `iconSize`    | The size of the app's icon, in points                                                                       |
-| `headerGap`   | The space between the app's icon and the cells, in points                                                   |
-| `nameSize`    | The font size of the app's name, in points                                                                  |
-| `dimOthers`   | How visible the panels on the other displays are, as a percentage in quotes. `"100%"` does not dim them.    |
-| `shadow`      | `true` gives the panel a shadow. Use it only with `"glass": false`.                                         |
-| `glass`       | `false` removes the glass behind the panel, so that the panel's `fill` is all that you see behind the cells |
+| Key | Value |
+|---|---|
+| `width` | The width of the panel, in points |
+| `cellsHeight` | The height of the cell area, in points. If you leave it out, the cell area has the shape of the display. |
+| `padding` | The space between the edge of the panel and the cells, in points |
+| `headerTop` | The space above the app's icon, in points |
+| `iconSize` | The size of the app's icon, in points |
+| `headerGap` | The space between the app's icon and the cells, in points |
+| `nameSize` | The font size of the app's name, in points |
+| `dimOthers` | How visible the panels on the other displays are, as a percentage in quotes. `"100%"` does not dim them. |
+| `shadow` | `true` gives the panel a shadow. Use it only with `"glass": false`. |
+| `glass` | `false` removes the glass behind the panel, so that the panel's `fill` is all that you see behind the cells |
 
-Divvy uses this layout:
+`dev/Divvy.json` uses this layout:
 
 ```json
 "layout": { "width": 320, "cellsHeight": 195, "padding": 20, "headerTop": 20, "iconSize": 30, "headerGap": 12, "nameSize": 18, "dimOthers": "60%", "shadow": true, "glass": false }
 ```
 
-Divvy has an even gap between all cells. For that look, also turn off **Wider gaps at halves, thirds and quarters** in Settings.
+Divvy's panel has an even gap between all cells. For that look, also turn off **Wider gaps at halves, thirds and quarters** in Settings.
 
 ## If a theme has a mistake
 

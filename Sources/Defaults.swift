@@ -23,8 +23,7 @@ let defaults: UserDefaults = {
             d.set(try! JSONEncoder().encode(old + defaultPresets.dropFirst(old.count)), forKey: "presets")
         }
     }
-    if let old = d.string(forKey: "theme"), let now = ["divvy": "Divvy", "default": "Default"][old] { d.set(now, forKey: "theme") }   // fork: the names its own Theme popup stored before 0.1.14
-    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "showHeader": true, "showList": true, "showMarks": true, "theme": "Divvy", "appearance": 0,
+    d.register(defaults: ["cols": 12, "rows": 8, "gap": 0, "showHeader": true, "showList": true, "showMarks": true, "theme": "Default", "appearance": 0,
                           "presets": try! JSONEncoder().encode(defaultPresets)])
     return d
 }()

@@ -1,0 +1,38 @@
+// Divvy's panel, measured from Divvy: small and fixed, black at 60% with a thin light edge, flat outlined cells with an
+// even 3pt gap, the cell under the cursor lit, the panels on the other displays faded. Divvy itself is dark only; the
+// light version is the same panel with the blacks and whites exchanged, and a denser backdrop because there is no glass.
+// "hover" and "layout" are this fork's additions to the theme file (docs/themes.md); upstream GridSnap rejects them.
+// For even gaps, also turn off "Wider gaps at halves, thirds and quarters" in Settings.
+{
+  "panel":     { "lineWidth": 1, "radius": 12 },
+  "cell":      { "lineWidth": 1, "radius": 4 },
+  "ghost":     { "stroke": "none", "lineWidth": 0, "radius": 4 },
+  "selection": { "lineWidth": 1, "radius": 4 },
+  "pending":   { "fill": "none", "lineWidth": 1, "radius": 4 },
+  "hover":     { "lineWidth": 1, "radius": 4 },
+  "focusRing": { "lineWidth": 0 },
+  "layout":    { "width": 320, "cellsHeight": 195, "padding": 20, "headerTop": 20, "iconSize": 30, "headerGap": 12, "nameSize": 18, "dimOthers": "60%", "shadow": true, "glass": false },
+  "spacing": 3,
+  "dark": {
+    "panel":     { "fill": "#000000 60%", "stroke": "#FFFFFF 32%" },
+    "header":    { "text": "#FFFFFF 92%" },
+    "cell":      { "fill": "#000000 25%", "stroke": "#FFFFFF 42%" },
+    "ghost":     { "fill": "#FFFFFF 8%" },
+    "selection": { "fill": "#FFFFFF 27%", "stroke": "#FFFFFF 42%" },
+    "pending":   { "stroke": "#FFFFFF 70%" },
+    "hover":     { "fill": "#FFFFFF 14%", "stroke": "#FFFFFF 42%" },
+    "preset":    { "fill": "#FFFFFF 15%", "text": "#FFFFFF 85%" },
+    "keycap":    { "fill": "#FFFFFF 18%", "text": "#FFFFFF" }
+  },
+  "light": {
+    "panel":     { "fill": "#F5F5F7 82%", "stroke": "#000000 22%" },
+    "header":    { "text": "#000000 85%" },
+    "cell":      { "fill": "#FFFFFF 45%", "stroke": "#000000 32%" },
+    "ghost":     { "fill": "#000000 8%" },
+    "selection": { "fill": "#000000 24%", "stroke": "#000000 40%" },
+    "pending":   { "stroke": "#000000 62%" },
+    "hover":     { "fill": "#000000 11%", "stroke": "#000000 36%" },
+    "preset":    { "fill": "#000000 10%", "text": "#000000 80%" },
+    "keycap":    { "fill": "#000000 12%", "text": "#000000 85%" }
+  }
+}

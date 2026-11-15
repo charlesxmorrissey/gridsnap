@@ -14,15 +14,15 @@ If your drag leaves the cells but stays on the panel, the nearest cells stay sel
 
 With the grid open, you can use these keys:
 
-| Key                | What it does                           |
-| ------------------ | -------------------------------------- |
-| Arrow keys         | Move the selection                     |
-| Shift+→ or Shift+↑ | Make the selection larger              |
-| Shift+← or Shift+↓ | Make the selection smaller             |
-| Return             | Snap the window to the selection       |
-| Tab                | Move the selection to the next display |
-| 1 to 9             | Apply a [preset](#presets)             |
-| Esc                | Cancel                                 |
+| Key | What it does |
+|---|---|
+| Arrow keys | Move the selection |
+| Shift+→ or Shift+↑ | Make the selection larger |
+| Shift+← or Shift+↓ | Make the selection smaller |
+| Return | Snap the window to the selection |
+| Tab | Move the selection to the next display |
+| 1 to 9 | Apply a [preset](#presets) |
+| Esc | Cancel |
 
 The selection starts on the cells that the window covers now. If you press Return without changing the selection, the window aligns to the grid.
 
@@ -58,14 +58,14 @@ Press ⌃⌥Z to put the window back where it was before the last snap. Press �
 
 To open Settings, click the GridSnap icon in the menu bar and choose **Settings…**.
 
-| Setting          | What it controls                                                                                                                                          |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Show grid        | The shortcut that opens the grid                                                                                                                          |
-| Undo snap        | The shortcut that undoes the last snap                                                                                                                    |
-| Columns and Rows | The size of the grid                                                                                                                                      |
-| Gap              | The space, in points, between snapped windows                                                                                                             |
-| Appearance       | Whether the panel is light, dark, or matches macOS                                                                                                        |
-| Theme            | The colours and shapes of the panel. [Themes](themes.md) explains how to make your own.                                                                   |
-| Show             | Whether the panel shows the app's icon and name above the cells, the preset list under them, and the wider gaps that mark the halves, thirds and quarters |
-| Target           | Whether GridSnap moves the focused window or the window under the cursor                                                                                  |
-| Presets          | Your presets. You can change a preset's name and shortcut in the table. To remove a preset, select it and click **−**.                                    |
+| Setting | What it controls |
+|---|---|
+| Show grid | The shortcut that opens the grid |
+| Undo snap | The shortcut that undoes the last snap |
+| Columns and Rows | The size of the grid |
+| Gap | The space, in points, between snapped windows |
+| Appearance | Whether the panel is light, dark, or matches macOS |
+| Theme | The colours and shapes of the panel. [Themes](themes.md) explains how to make your own. |
+| Show | Whether the panel shows the app's icon and name above the cells, the preset list under them, and the wider gaps that mark the halves, thirds and quarters |
+| Target | Whether GridSnap moves the focused window or the window under the cursor |
+| Presets | Your presets. You can change a preset's name and shortcut in the table. To remove a preset, select it and click **−**. |

@@ -1,0 +1,5 @@
+# Upstream's pages keep upstream's formatting, so that a merge only conflicts where the words differ.
+README.md
+docs/
+# The same bytes as the copy in ~/Library/Application Support/GridSnap/Themes.
+dev/Divvy.json

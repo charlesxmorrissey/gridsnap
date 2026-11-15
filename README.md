@@ -13,7 +13,7 @@ GridSnap is an open source alternative to [Divvy](https://mizage.com/divvy/) for
 - You choose the grid size, the gap between windows, and whether GridSnap moves the focused window or the one under the cursor.
 - The grid shows the icon and name of the app that the window belongs to. You can turn this off in Settings.
 - The grid has ten themes, each with a light and a dark version that follows macOS. You can also [make your own](docs/themes.md).
-- This fork adds an eleventh theme, Divvy, and uses it by default: a small dark panel with flat outlined cells that dims the grids on the other displays.
+- In this fork, a theme can also set the size of the panel, dim the grids on the other displays, and light up the cell under the pointer. `dev/Divvy.json` is a theme that uses this to look like Divvy.
 - GridSnap lives in the menu bar, has no Dock icon, and can start when you log in.
 - GridSnap does not use the network, collect analytics, or need an account.
 
