@@ -6,6 +6,11 @@ Scripts for building and driving the app on this Mac. They assume two displays, 
 `devbuild.sh` builds the app and relabels it as `com.zerodivisionerror.gridsnap.dev` so it keeps its own settings and
 Accessibility grant next to the Homebrew install. Run the result with `open build/GridSnap.app`.
 
+The fork has no drag code of its own. Upstream keeps the edge cells for the `grace` time after a drag leaves the panel,
+one second by default. The dev build sets that time very high, so that a drag past the panel always keeps the edge
+cells and only Esc cancels: `defaults write com.zerodivisionerror.gridsnap.dev grace -float 100000`. `clamp.swift`
+tests this.
+
 The Swift files drive the running dev build with synthetic events. Each takes the GridSnap pid and the TextEdit pid:
 `swift dev/checks.swift $(pgrep -x GridSnap) $(pgrep -x TextEdit)`. `gridtest.swift` opens the grid and drags or uses
 the keyboard across displays, `checks.swift` covers presets, undo and ghosts, `record.swift` drives record mode from
